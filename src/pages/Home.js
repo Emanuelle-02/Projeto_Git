@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View,FlatList, Image, Keyboard} from 'react-native';
+import {StyleSheet, Text, View,FlatList, Image, Keyboard, Alert} from 'react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import Global from '../styles/Global';
 import Theme from '../styles/Theme';
@@ -31,22 +31,21 @@ export function Home( { navigation} ) {
       }
 
       const vetData = [...users, obj]; 
-        
-      try{
-          await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify( vetData ) );
-      }catch(error){
-          Alert.alert("Erro na gravação de usuários");
-      } 
-
-      Keyboard.dismiss();
-      setNickname('');  
-      loadData(); 
-      console.log(obj);
-
-    }catch(error){
-    console.error(error);
+  
+    try {
+      await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify(vetData));
+    } catch(error) {
+      Alert.alert("Erro no salvamento de usuário. Verifique se o nome de usuário informado está correto.");
     }
+
+    setNickname('');
+    Keyboard.dismiss();
+    loadData();
+
+  } catch(error) {
+    console.error(error);
   }
+} 
 
   async function loadData(){
     try{
@@ -55,12 +54,12 @@ export function Home( { navigation} ) {
       console.log( teste );
       setUsers( teste || [] );
     }catch(error){
-        Alert.alert("Erro na leitura dos dados");
+      Alert.alert("Erro na leitura dos dados de usuário.");
     }
   }
-    useEffect( ()=>{
-      loadData();      
-    } , []);
+  useEffect( () =>{
+    navigation.addListener('focus', ()=> loadData());
+  }, [navigation]);
 
   return (
 
