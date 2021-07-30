@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import {StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native';
+import {StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import Global from '../styles/Global';
 import Theme from '../styles/Theme';
 import api from '../services/api';
-import {AsyncStorage} from 'react-native';
 import {FontAwesome5} from '@expo/vector-icons'; 
 import {MaterialCommunityIcons} from '@expo/vector-icons'; 
+import {AsyncStorage} from 'react-native';
 
-export function Details({ route }) {
+export function Details({ navigation, route }) {
   
+  const keyAsyncStorage = "@GIT.NETWORK:users";
   const [user, setUser] = useState({});
 
   async function carregarUsuarios( nickname ){
@@ -36,11 +37,19 @@ export function Details({ route }) {
     }
   }
 
-  async function handleDeleteContact(id) {
-    const newData = user.filter( item => item.id != id );
-    await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify( newData ));
-    setUser(newData); 
-  }
+  async function handleDelete(id) {
+    try{
+    const retorno = await AsyncStorage.getItem(keyAsyncStorage);
+            const teste = JSON.parse(retorno);
+            const newData = teste.filter(item => item.id != id);
+            await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify(newData));
+
+            navigation.navigate('home');
+
+        } catch(error) {
+            console.error(error);
+        }
+    }
   
   useEffect(()=>{
       const {user} = route.params;
@@ -77,7 +86,7 @@ export function Details({ route }) {
             </View>
          </View>
         <View>
-          <TouchableOpacity style={styles.button} onPress={() => {handleDeleteContact(user.id); }}>
+          <TouchableOpacity style={styles.button} onPress={() => {handleDelete(user.id); }}>
             <Text style={styles.buttonText}>Remover</Text>
           </TouchableOpacity> 
         </View>
